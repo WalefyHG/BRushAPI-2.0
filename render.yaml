@@ -1,0 +1,6 @@
+name: Brush
+type: web
+runtime: python
+plan: free
+buildCommand: pip install -r requirements.txt
+startCommand: ./build.sh
