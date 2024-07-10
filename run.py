@@ -1,13 +1,22 @@
 import os
+import django
+from uvicorn import run
+from core.asgi import django_asgi_app
+from ninja_jwt.authentication import JWTAuth
+
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 
-import django
 django.setup()
 
-import uvicorn
-from core.api import api 
+from core.api import api
+
+async def application(scope, receive, send):
+    if scope['type'] == 'http':
+        await django_asgi_app(scope, receive, send)
+    else:
+        await JWTAuth(api)(scope, receive, send)
 
 if __name__ == "__main__":
     port = int(os.getenv('PORT', 8000))
-    uvicorn.run(api, host="0.0.0.0", port=port)
+    run(application, host="0.0.0.0", port=port)
