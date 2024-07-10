@@ -5,5 +5,8 @@ services:
     plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: ./build.sh
+
+databases:
+  - name: Brush
     user: brush_user
     databaseName: brush
