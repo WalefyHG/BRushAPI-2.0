@@ -1,6 +1,9 @@
-name: Brush
-type: web
-runtime: python
-plan: free
-buildCommand: pip install -r requirements.txt
-startCommand: ./build.sh
+services:
+  - type: web
+    name: Brush
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: ./build.sh
+    user: brush_user
+    databaseName: brush
