@@ -7,3 +7,6 @@ api = NinjaExtraAPI(version='2.0.0', title='API do BRush', description='Nossa no
 
 api.register_controllers(LoginController)
 api.register_controllers(UserPublicContoller)
+
+
+
