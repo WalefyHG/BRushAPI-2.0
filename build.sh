@@ -2,5 +2,6 @@ python manage.py makemigrations
 
 python manage.py migrate
 
-python run.py
+python manage.py collectstatic
 
+python run.py
