@@ -75,4 +75,4 @@ async def application(scope, receive, send):
 
 if __name__ == "__main__":
     port = int(os.getenv('PORT', 8000))
-    run(application, host="127.0.0.1", port=port)
+    run(application, host="0.0.0.0", port=port)

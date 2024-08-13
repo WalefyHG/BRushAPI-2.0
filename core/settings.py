@@ -114,8 +114,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgresql://brush_9yxv_user:C406dmwodCrt351sjMtzi5GsGgVj99xu@dpg-cqtoe3bv2p9s73dktv90-a.oregon-postgres.render.com/brush_9yxv',
-        conn_max_age=600
+        default= os.getenv('DATABASE_URL')
     )
 }
 
