@@ -1,6 +1,9 @@
-from typing import List, Optional
-from datetime import date
+from typing import Any, List, Optional
+from datetime import date, datetime
 from ninja import Schema
+from pydantic import BaseModel, ConfigDict, validator
+import pydantic.dataclasses
+
 
 class UserIn(Schema):
     user_name: str
@@ -81,13 +84,13 @@ class TeamAssing(Schema):
 class NoticeIn(Schema):
     notice_title: str
     notice_content: str
-    notice_date: date = None
+    notice_date: datetime = None
 
 class NoticeOut(Schema):
     notice_id: int
     notice_title: str
     notice_content: str
-    notice_date: date = None
+    notice_date: datetime = None
     notice_image: Optional[str] = None
     notice_writer: UserOut = None
     
@@ -97,3 +100,24 @@ class LoginResponse(Schema):
     access: Optional[str] = None
     refresh: Optional[str] = None
     code: Optional[str] = None
+    
+    
+class ChatMessageIn(Schema):
+    recipient_id: int
+    content: str
+
+class ChatMessageResponse(Schema):
+    id: int
+    content: str
+    sender: UserOut
+    room: str
+    timestamp: datetime
+    
+class ChatRoomOut(Schema):
+    id: int
+    users: List[int]
+    messages: List[ChatMessageResponse]
+    
+    
+class ReadCount(Schema):
+    count: int

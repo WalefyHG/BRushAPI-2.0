@@ -4,8 +4,8 @@ from ninja import UploadedFile, Form, File
 from ninja_extra import route, api_controller
 from main.permissions import AdminAcess
 from utils.sending_code import sending_code
-from ..models import User, UserCode
-from ..schemas import UserOut, UserIn, UserResponse, UserPut, UserChangePassword, UserSocialMedias
+from ..models import User, UserCode, ChatMessage
+from ..schemas import UserOut, UserIn, UserResponse, UserPut, UserChangePassword, UserSocialMedias, ReadCount
 from datetime import datetime
 from ninja_jwt.authentication import JWTAuth
 from django.contrib.auth.hashers import make_password, check_password
@@ -19,7 +19,7 @@ from django.utils import timezone as django_timezone
 )
 
 class UserPublicContoller:
-    @route.get('/pegarAll', response={200: list[UserOut]}, permissions=[AdminAcess])
+    @route.get('/pegarAll', response={200: list[UserOut]})
     def get_all_users(self, request):
         users = User.objects.all()
         serialized_users = []
@@ -46,10 +46,10 @@ class UserPublicContoller:
                 user_out.user_image = user.user_image.url
             if user.user_banner:
                 user_out.user_banner = user.user_banner.url
-        serialized_users.append(user_out)
+            serialized_users.append(user_out)
         return serialized_users
 
-    @route.get('/perfil', response={200: UserOut}, permissions=[AdminAcess])
+    @route.get('/perfil', response={200: UserOut})
     def get_user_by_token(self, request):
         return request.auth
     
@@ -110,10 +110,37 @@ class UserPublicContoller:
         if user.user_banner:
             user_out.user_banner = user.user_banner.url
         return user_out
+    
+    @route.get('/usuario/{id}', response={200: UserOut})
+    def get_user_by_id(self, request, id: int):
+        user = User.objects.get(id=id)
+        user_out = UserOut(
+            id=user.id,
+            user_name=user.user_name,
+            user_email=user.user_email,
+            user_birthday=user.user_birthday,
+            user_firstName=user.user_firstName,
+            user_lastName=user.user_lastName,
+            user_idioma=user.user_idioma,
+            user_games=user.user_games,
+            user_pais=user.user_pais,
+            user_youtube=user.user_youtube,
+            user_twitch=user.user_twitch,
+            user_instagram=user.user_instagram,
+            user_twitter=user.user_twitter,
+            is_confirmed=user.is_confirmed,
+            tipo=user.tipo,
+        )
+        
+        if user.user_image:
+            user_out.user_image = user.user_image.url
+        if user.user_banner:
+            user_out.user_banner = user.user_banner.url
+        return user_out
 
     @route.get('/pesquisar/{user_firstName}', response={200: list[UserOut]}, auth=None)
     def get_user_by_userfirstname(self, request, user_firstName: str):
-        users = User.objects.get(user_firstName=user_firstName)
+        users = User.objects.filter(user_firstName__icontains=user_firstName)
         serialized_users = []
         for user in users:
             user_out = UserOut(
@@ -219,3 +246,10 @@ class UserPublicContoller:
         user.user_instagram = social_medias.user_instagram
         user.save()
         return {"mensagem": "Redes sociais atualizadas com sucesso"}
+    
+    
+    @route.get('/read_count', response={200: ReadCount})
+    def count_read_message(self, request, user_id: int):
+        user = User.objects.get(id=user_id)
+        count = ChatMessage.objects.filter(user=user, read=False).count()
+        return {"count": count}
