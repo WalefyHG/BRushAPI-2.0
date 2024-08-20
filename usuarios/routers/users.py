@@ -4,8 +4,8 @@ from ninja import UploadedFile, Form, File
 from ninja_extra import route, api_controller
 from main.permissions import AdminAcess
 from utils.sending_code import sending_code
-from ..models import User, UserCode
-from ..schemas import UserOut, UserIn, UserResponse, UserPut, UserChangePassword, UserSocialMedias
+from ..models import User, UserCode, ChatMessage
+from ..schemas import UserOut, UserIn, UserResponse, UserPut, UserChangePassword, UserSocialMedias, ReadCount
 from datetime import datetime
 from ninja_jwt.authentication import JWTAuth
 from django.contrib.auth.hashers import make_password, check_password
@@ -19,7 +19,7 @@ from django.utils import timezone as django_timezone
 )
 
 class UserPublicContoller:
-    @route.get('/pegarAll', response={200: list[UserOut]}, permissions=[AdminAcess])
+    @route.get('/pegarAll', response={200: list[UserOut]})
     def get_all_users(self, request):
         users = User.objects.all()
         serialized_users = []
@@ -46,10 +46,10 @@ class UserPublicContoller:
                 user_out.user_image = user.user_image.url
             if user.user_banner:
                 user_out.user_banner = user.user_banner.url
-        serialized_users.append(user_out)
+            serialized_users.append(user_out)
         return serialized_users
 
-    @route.get('/perfil', response={200: UserOut}, permissions=[AdminAcess])
+    @route.get('/perfil', response={200: UserOut})
     def get_user_by_token(self, request):
         return request.auth
     
@@ -76,13 +76,17 @@ class UserPublicContoller:
                 user_idioma= user.user_idioma,
                 user_games= user.user_games,
                 user_pais= user.user_pais,
+                is_confirmed = user.is_confirmed,
                 tipo = user.tipo,
             )
             if(image):
                 user_data.user_image = image
 
         user_data.save()
-        return {"mensagem": "Usuário criado com sucesso"}
+        
+        if user.is_confirmed == False:
+            sending_code(user_data)
+            return {"mensagem": "Usuário criado com sucesso, verifique seu email para confirmar o cadastro"}
     
     @route.get('/perfil/{user_name}', response={200: UserOut}, auth=None)
     def get_user_perfil_by_username(self, request, user_name: str):
@@ -110,10 +114,37 @@ class UserPublicContoller:
         if user.user_banner:
             user_out.user_banner = user.user_banner.url
         return user_out
+    
+    @route.get('/usuario/{id}', response={200: UserOut})
+    def get_user_by_id(self, request, id: int):
+        user = User.objects.get(id=id)
+        user_out = UserOut(
+            id=user.id,
+            user_name=user.user_name,
+            user_email=user.user_email,
+            user_birthday=user.user_birthday,
+            user_firstName=user.user_firstName,
+            user_lastName=user.user_lastName,
+            user_idioma=user.user_idioma,
+            user_games=user.user_games,
+            user_pais=user.user_pais,
+            user_youtube=user.user_youtube,
+            user_twitch=user.user_twitch,
+            user_instagram=user.user_instagram,
+            user_twitter=user.user_twitter,
+            is_confirmed=user.is_confirmed,
+            tipo=user.tipo,
+        )
+        
+        if user.user_image:
+            user_out.user_image = user.user_image.url
+        if user.user_banner:
+            user_out.user_banner = user.user_banner.url
+        return user_out
 
     @route.get('/pesquisar/{user_firstName}', response={200: list[UserOut]}, auth=None)
     def get_user_by_userfirstname(self, request, user_firstName: str):
-        users = User.objects.get(user_firstName=user_firstName)
+        users = User.objects.filter(user_firstName__icontains=user_firstName)
         serialized_users = []
         for user in users:
             user_out = UserOut(
@@ -170,23 +201,20 @@ class UserPublicContoller:
         user.delete()
         return {"mensagem": "Usuário deletado com sucesso"}
     
-    @route.post('/verificar_codigo/{code}', response={200: UserResponse})
+    @route.post('/verificar_codigo/{code}', response={200: UserResponse}, auth=None)
     def verify_code(self, request, code: str):
         try:
-            user = request.auth
-            user_code = UserCode.objects.get(user_id=user.id, verification_code=code)
-            now = datetime.now().astimezone(django_timezone.get_current_timezone())
-            if user_code.verification_code_expires > now:
-                user.is_confirmed = True
-                user.save()
-                user_code.delete()
+            user = UserCode.objects.get(verification_code=code)
+            user_data = User.objects.get(id=user.user_id_id)
+            if user_data:
+                user_data.is_confirmed = True
+                user_data.save()
+                user.delete()
                 return {"mensagem": "Usuário confirmado com sucesso"}
             else:
-                user_code.delete()
-                return {"mensagem": "Código expirado"}
-            
-        except UserCode.DoesNotExist:
-            return {"mensagem": "Código inválido"}
+                return {"mensagem": "Usuário não encontrado"}
+        except:
+            return {'mensagem': 'Código inválido'}
         
         
     @route.put('/atualizar_senha', response={200: UserResponse}, auth=None)
@@ -219,3 +247,10 @@ class UserPublicContoller:
         user.user_instagram = social_medias.user_instagram
         user.save()
         return {"mensagem": "Redes sociais atualizadas com sucesso"}
+    
+    
+    @route.get('/read_count', response={200: ReadCount})
+    def count_read_message(self, request, user_id: int):
+        user = User.objects.get(id=user_id)
+        count = ChatMessage.objects.filter(user=user, read=False).count()
+        return {"count": count}

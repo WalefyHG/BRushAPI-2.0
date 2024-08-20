@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'ninja_extra',
     'ninja_jwt',
     'corsheaders',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -102,6 +103,9 @@ TEMPLATES = [
     },
 ]
 
+
+ASGI_APPLICATION = "core.asgi.application"
+
 WSGI_APPLICATION = 'core.wsgi.application'
 
 
@@ -109,7 +113,17 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(default=config('DATABASE_URL'))
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'brush',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        },
+    }
 }
 
 
@@ -169,3 +183,36 @@ EMAIL_USE_SSL = False
 EMAIL_HOST_USER = 'brushsuporte@gmail.com'  
 EMAIL_HOST_PASSWORD = 'bgqs qwmw iimh jxzj' 
 DEFAULT_FROM_EMAIL = 'brushsuporte@gmail.com'
+
+
+CHANNEL_LAYERS = {
+    'default' : {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],
+        },
+    }
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379",
+        "OPTIONS": {
+            "CLIENT_CLASS": 'django_redis.client.DefaultClient'
+        }
+    }
+}
+
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
+}
