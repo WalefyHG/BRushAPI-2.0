@@ -76,13 +76,17 @@ class UserPublicContoller:
                 user_idioma= user.user_idioma,
                 user_games= user.user_games,
                 user_pais= user.user_pais,
+                is_confirmed = user.is_confirmed,
                 tipo = user.tipo,
             )
             if(image):
                 user_data.user_image = image
 
         user_data.save()
-        return {"mensagem": "Usuário criado com sucesso"}
+        
+        if user.is_confirmed == False:
+            sending_code(user_data)
+            return {"mensagem": "Usuário criado com sucesso, verifique seu email para confirmar o cadastro"}
     
     @route.get('/perfil/{user_name}', response={200: UserOut}, auth=None)
     def get_user_perfil_by_username(self, request, user_name: str):
@@ -197,23 +201,20 @@ class UserPublicContoller:
         user.delete()
         return {"mensagem": "Usuário deletado com sucesso"}
     
-    @route.post('/verificar_codigo/{code}', response={200: UserResponse})
+    @route.post('/verificar_codigo/{code}', response={200: UserResponse}, auth=None)
     def verify_code(self, request, code: str):
         try:
-            user = request.auth
-            user_code = UserCode.objects.get(user_id=user.id, verification_code=code)
-            now = datetime.now().astimezone(django_timezone.get_current_timezone())
-            if user_code.verification_code_expires > now:
-                user.is_confirmed = True
-                user.save()
-                user_code.delete()
+            user = UserCode.objects.get(verification_code=code)
+            user_data = User.objects.get(id=user.user_id_id)
+            if user_data:
+                user_data.is_confirmed = True
+                user_data.save()
+                user.delete()
                 return {"mensagem": "Usuário confirmado com sucesso"}
             else:
-                user_code.delete()
-                return {"mensagem": "Código expirado"}
-            
-        except UserCode.DoesNotExist:
-            return {"mensagem": "Código inválido"}
+                return {"mensagem": "Usuário não encontrado"}
+        except:
+            return {'mensagem': 'Código inválido'}
         
         
     @route.put('/atualizar_senha', response={200: UserResponse}, auth=None)

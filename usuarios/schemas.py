@@ -16,6 +16,7 @@ class UserIn(Schema):
     user_games: str = None
     user_pais: str = None
     user_image: Optional[str] = None
+    is_confirmed: bool = None
     tipo: str = None
     
 class UserOut(Schema):
@@ -58,6 +59,15 @@ class UserPut(Schema):
     user_idioma: Optional[str] = ''
     user_games: Optional[str] = ''
     user_pais: Optional[str] = ''
+    user_firstName: Optional[str] = ''
+    user_lastName: Optional[str] = ''
+    user_instagram: Optional[str] = ''
+    user_twitter: Optional[str] = ''
+    user_youtube: Optional[str] = ''
+    user_twitch: Optional[str] = ''
+    tipo: Optional[str] = ''
+    is_confirmed: Optional[bool] = ''   
+     
 
 
 class UserChangePassword(Schema):
@@ -99,7 +109,6 @@ class LoginResponse(Schema):
     mensagem: str
     access: Optional[str] = None
     refresh: Optional[str] = None
-    code: Optional[str] = None
     
     
 class ChatMessageIn(Schema):

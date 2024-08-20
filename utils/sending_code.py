@@ -66,7 +66,7 @@ def sending_code(user):
         '''
         from_email = 'BRushSuporte@gmail.com'
         recipient_list = [user.user_email]
-        send_mail(subject, 
+        return send_mail(subject, 
                   '', 
                   from_email, 
                   recipient_list, 
@@ -75,7 +75,6 @@ def sending_code(user):
                   auth_password='bgqs qwmw iimh jxzj',
                   html_message=mensagem
                   )
-        return {"mensagem": "Enviado com sucesso", "code": code["code"]}
     except User.DoesNotExist:
         return {"mensagem": "Usuário não encontrado"}
 
