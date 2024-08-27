@@ -4,8 +4,8 @@ from ninja import UploadedFile, Form, File
 from ninja_extra import route, api_controller
 from main.permissions import AdminAcess
 from utils.sending_code import sending_code
-from ..models import User, UserCode, ChatMessage
-from ..schemas import UserOut, UserIn, UserResponse, UserPut, UserChangePassword, UserSocialMedias, ReadCount
+from ..models import FriendShip, User, UserCode, ChatMessage
+from ..schemas import UserOut, UserIn, UserOutFriendShip, UserResponse, UserPut, UserChangePassword, UserSocialMedias, ReadCount
 from datetime import datetime
 from ninja_jwt.authentication import JWTAuth
 from django.contrib.auth.hashers import make_password, check_password
@@ -88,10 +88,10 @@ class UserPublicContoller:
             sending_code(user_data)
             return {"mensagem": "Usuário criado com sucesso, verifique seu email para confirmar o cadastro"}
     
-    @route.get('/perfil/{user_name}', response={200: UserOut}, auth=None)
+    @route.get('/perfil/{user_name}', response={200: UserOut})
     def get_user_perfil_by_username(self, request, user_name: str):
         user = User.objects.get(user_name=user_name)
-        user_out = UserOut(
+        user_out = UserOutFriendShip(
             id=user.id,
             user_name=user.user_name,
             user_email=user.user_email,
@@ -107,12 +107,23 @@ class UserPublicContoller:
             user_twitter=user.user_twitter,
             is_confirmed=user.is_confirmed,
             tipo=user.tipo,
+            friend_ship_request=False,
+            are_friends=False
         )
+        current_user = request.auth
+        friend_ship_request = FriendShip.objects.filter(user=current_user, friend=user, accepted=False).exists()
+        
+        are_friends = FriendShip.objects.filter(user=current_user, friend=user, accepted=True).exists() or \
+                      FriendShip.objects.filter(user=user, friend=current_user, accepted=True).exists()
         
         if user.user_image:
             user_out.user_image = user.user_image.url
         if user.user_banner:
             user_out.user_banner = user.user_banner.url
+            
+        
+        user_out.friend_ship_request = friend_ship_request
+        user_out.are_friends = are_friends
         return user_out
     
     @route.get('/usuario/{id}', response={200: UserOut})

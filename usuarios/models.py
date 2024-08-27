@@ -37,6 +37,14 @@ class User(AbstractUser, PermissionsMixin):
 User._meta.get_field('groups').remote_field.related_name = 'usuarios_groups'
 User._meta.get_field('user_permissions').remote_field.related_name = 'usuarios_user_permissions'
 
+class FriendShip(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
+    friend = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friend')
+    created = models.DateTimeField(auto_now_add=True)
+    accepted = models.BooleanField(default=False)
+    class Meta:
+        unique_together = ['user', 'friend']
+
 
 class Notices(models.Model):
     notice_id = models.AutoField(primary_key=True)

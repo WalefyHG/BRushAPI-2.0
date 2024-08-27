@@ -1,6 +1,7 @@
 from ninja_extra import NinjaExtraAPI
 from usuarios.routers.chat import ChatController
 from usuarios.routers.docs import DocsPrivateContoller
+from usuarios.routers.friendship import FriendshipController
 from usuarios.routers.login import LoginController
 from usuarios.routers.notices import NoticesController
 from usuarios.routers.users import UserPublicContoller
@@ -13,3 +14,4 @@ api.register_controllers(UserPublicContoller)
 api.register_controllers(DocsPrivateContoller)
 api.register_controllers(ChatController)
 api.register_controllers(NoticesController)
+api.register_controllers(FriendshipController)
