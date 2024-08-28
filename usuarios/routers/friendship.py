@@ -60,6 +60,7 @@ class FriendshipController:
             
             friend_data = {
                 "id": friend.id,
+                "id_auth": user.id,
                 "user_name": friend.user_name,
                 "user_email": friend.user_email,
                 "user_birthday": friend.user_birthday,
@@ -95,6 +96,7 @@ class FriendshipController:
             
             friend_data = {
                 "id": friend.id,
+                "id_auth": user.id,
                 "user_name": friend.user_name,
                 "user_email": friend.user_email,
                 "user_birthday": friend.user_birthday,
