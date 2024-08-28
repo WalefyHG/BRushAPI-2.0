@@ -63,7 +63,6 @@ class UserOutFriendShip(Schema):
     
 class UserOutFriend(Schema):
     id: int = None
-    id_auth: int = None
     user_name: str = None
     user_email: str = None
     user_birthday: date = None
@@ -81,6 +80,7 @@ class UserOutFriend(Schema):
     is_confirmed: bool = None
     tipo: str = None
     id_friend: int = None
+    is_sender = UserOut = None
 
 class UserResponse(Schema):
     mensagem: str

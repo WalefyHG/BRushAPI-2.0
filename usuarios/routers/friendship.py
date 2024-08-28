@@ -56,16 +56,11 @@ class FriendshipController:
         friendships = FriendShip.objects.filter((Q(user=user) | Q(friend=user)) & Q(accepted=True))
         friends_with_ids = []
         for friendship in friendships:
-            if friendship.user == user:
-                friend = friendship.friend
-                id_auth = friendship.user.id
-            else:
-                friend = friendship.user
-                id_auth = friendship.friend.id
+            friend = friendship.friend if friendship.user == user else friendship.user
             
             friend_data = {
                 "id": friend.id,
-                "id_auth": id_auth,
+                "id_auth": user.id,
                 "user_name": friend.user_name,
                 "user_email": friend.user_email,
                 "user_birthday": friend.user_birthday,
@@ -97,16 +92,10 @@ class FriendshipController:
         friends_with_ids = []
         
         for friendship in friendships:
-            if friendship.user == user:
-                friend = friendship.friend
-                id_auth = friendship.user.id
-            else:
-                friend = friendship.user
-                id_auth = friendship.friend.id
+            friend = friendship.friend if friendship.user == user else friendship.user
             
             friend_data = {
                 "id": friend.id,
-                "id_auth": id_auth,
                 "user_name": friend.user_name,
                 "user_email": friend.user_email,
                 "user_birthday": friend.user_birthday,
@@ -123,7 +112,8 @@ class FriendshipController:
                 "user_banner": friend.user_banner.url if friend.user_banner else None,
                 "tipo": friend.tipo,
                 "is_confirmed": friend.is_confirmed,
-                "id_friend": friendship.id  
+                "id_friend": friendship.id,
+                "is_sender": friendship.user == user
                 }
             
             friends_with_ids.append(friend_data)
