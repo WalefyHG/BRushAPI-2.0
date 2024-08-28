@@ -88,7 +88,7 @@ class UserPublicContoller:
             sending_code(user_data)
             return {"mensagem": "Usuário criado com sucesso, verifique seu email para confirmar o cadastro"}
     
-    @route.get('/perfil/{user_name}', response={200: UserOut})
+    @route.get('/perfil/{user_name}', response={200: UserOutFriendShip})
     def get_user_perfil_by_username(self, request, user_name: str):
         user = User.objects.get(user_name=user_name)
         user_out = UserOutFriendShip(

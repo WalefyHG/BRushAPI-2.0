@@ -59,6 +59,27 @@ class UserOutFriendShip(Schema):
     tipo: str = None
     friend_ship_request: bool = None
     are_friends: bool = None
+    
+    
+class UserOutFriend(Schema):
+    id: int = None
+    user_name: str = None
+    user_email: str = None
+    user_birthday: date = None
+    user_firstName: str = None
+    user_lastName: str = None
+    user_image: Optional[str] = None
+    user_idioma: str = None
+    user_games: str = None
+    user_pais: str = None
+    user_banner: Optional[str] = None
+    user_youtube : str = None
+    user_twitch : str = None
+    user_instagram : str = None
+    user_twitter : str = None
+    is_confirmed: bool = None
+    tipo: str = None
+    id_friend: int = None
 
 class UserResponse(Schema):
     mensagem: str
