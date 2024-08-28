@@ -4,6 +4,7 @@ from ..schemas import UserOut, UserResponse, UserOutFriend
 from ..models import User, FriendShip
 from ninja_jwt.authentication import JWTAuth
 from ninja.errors import HttpError
+from django.db.models import Q
 
 @api_controller(
     "/friendship",
@@ -52,61 +53,68 @@ class FriendshipController:
     @route.get("/accepted_friends", response={200: list[UserOutFriend]})
     def listando(self, request):
         user = request.auth
-        friendships = FriendShip.objects.filter(friend=user, accepted=True)
+        friendships = FriendShip.objects.filter((Q(user=user) | Q(friend=user)) & Q(accepted=True))
         friends_with_ids = []
         for friendship in friendships:
-            friend = {
-                "id": friendship.user.id,
-                "user_name": friendship.user.user_name,
-                "user_email": friendship.user.user_email,
-                "user_birthday": friendship.user.user_birthday,
-                "user_firstName": friendship.user.user_firstName,
-                "user_lastName": friendship.user.user_lastName,
-                "user_idioma": friendship.user.user_idioma,
-                "user_games": friendship.user.user_games,
-                "user_pais": friendship.user.user_pais,
-                "user_youtube": friendship.user.user_youtube,
-                "user_twitch": friendship.user.user_twitch,
-                "user_instagram": friendship.user.user_instagram,
-                "user_twitter": friendship.user.user_twitter,
-                "user_image": friendship.user.user_image.url if friendship.friend.user_image else None,
-                "user_banner": friendship.user.user_banner.url if friendship.friend.user_banner else None,
-                "tipo": friendship.user.tipo,
-                "is_confirmed": friendship.user.is_confirmed,
+            friend = friendship.friend if friendship.user == user else friendship.user
+            
+            friend_data = {
+                "id": friend.id,
+                "user_name": friend.user_name,
+                "user_email": friend.user_email,
+                "user_birthday": friend.user_birthday,
+                "user_firstName": friend.user_firstName,
+                "user_lastName": friend.user_lastName,
+                "user_idioma": friend.user_idioma,
+                "user_games": friend.user_games,
+                "user_pais": friend.user_pais,
+                "user_youtube": friend.user_youtube,
+                "user_twitch": friend.user_twitch,
+                "user_instagram": friend.user_instagram,
+                "user_twitter": friend.user_twitter,
+                "user_image": friend.user_image.url if friend.user_image else None,
+                "user_banner": friend.user_banner.url if friend.user_banner else None,
+                "tipo": friend.tipo,
+                "is_confirmed": friend.is_confirmed,
                 "id_friend": friendship.id  
                 }
-            friends_with_ids.append(friend)
+            
+            friends_with_ids.append(friend_data)
+            
     
         return friends_with_ids
 
     @route.get("/pending_requests", response={200: list[UserOutFriend]})
     def pending_requests(self, request):
         user = request.auth
-        friendships = FriendShip.objects.filter(friend=user, accepted=False)
+        friendships = FriendShip.objects.filter((Q(user=user) | Q(friend=user)) & Q(accepted=False))
         friends_with_ids = []
         
         for friendship in friendships:
-            friend = {
-                "id": friendship.user.id,
-                "user_name": friendship.user.user_name,
-                "user_email": friendship.user.user_email,
-                "user_birthday": friendship.user.user_birthday,
-                "user_firstName": friendship.user.user_firstName,
-                "user_lastName": friendship.user.user_lastName,
-                "user_idioma": friendship.user.user_idioma,
-                "user_games": friendship.user.user_games,
-                "user_pais": friendship.user.user_pais,
-                "user_youtube": friendship.user.user_youtube,
-                "user_twitch": friendship.user.user_twitch,
-                "user_instagram": friendship.user.user_instagram,
-                "user_twitter": friendship.user.user_twitter,
-                "user_image": friendship.user.user_image.url if friendship.friend.user_image else None,
-                "user_banner": friendship.user.user_banner.url if friendship.friend.user_banner else None,
-                "tipo": friendship.user.tipo,
-                "is_confirmed": friendship.user.is_confirmed,
+            friend = friendship.friend if friendship.user == user else friendship.user
+            
+            friend_data = {
+                "id": friend.id,
+                "user_name": friend.user_name,
+                "user_email": friend.user_email,
+                "user_birthday": friend.user_birthday,
+                "user_firstName": friend.user_firstName,
+                "user_lastName": friend.user_lastName,
+                "user_idioma": friend.user_idioma,
+                "user_games": friend.user_games,
+                "user_pais": friend.user_pais,
+                "user_youtube": friend.user_youtube,
+                "user_twitch": friend.user_twitch,
+                "user_instagram": friend.user_instagram,
+                "user_twitter": friend.user_twitter,
+                "user_image": friend.user_image.url if friend.user_image else None,
+                "user_banner": friend.user_banner.url if friend.user_banner else None,
+                "tipo": friend.tipo,
+                "is_confirmed": friend.is_confirmed,
                 "id_friend": friendship.id  
                 }
-            friends_with_ids.append(friend)
+            
+            friends_with_ids.append(friend_data)
             
         return friends_with_ids
     
