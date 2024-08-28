@@ -122,6 +122,6 @@ class FriendshipController:
     @route.delete("/delete_friendship", response={200: UserResponse})
     def delete_account_friend(self, request):
         user = request.auth
-        friendships = FriendShip.objects.filter(friend=user)
+        friendships = FriendShip.objects.filter(Q(user=user) | Q(friend=user))
         friendships.delete()
         return {"mensagem": "Amizades deletadas com sucesso."}
