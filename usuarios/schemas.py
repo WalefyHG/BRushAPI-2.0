@@ -80,7 +80,7 @@ class UserOutFriend(Schema):
     is_confirmed: bool = None
     tipo: str = None
     id_friend: int = None
-    is_sender: UserOut = None
+    is_sender: bool = None
 
 class UserResponse(Schema):
     mensagem: str

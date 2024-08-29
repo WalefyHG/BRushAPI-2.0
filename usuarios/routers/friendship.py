@@ -60,7 +60,6 @@ class FriendshipController:
             
             friend_data = {
                 "id": friend.id,
-                "id_auth": user.id,
                 "user_name": friend.user_name,
                 "user_email": friend.user_email,
                 "user_birthday": friend.user_birthday,
@@ -77,7 +76,7 @@ class FriendshipController:
                 "user_banner": friend.user_banner.url if friend.user_banner else None,
                 "tipo": friend.tipo,
                 "is_confirmed": friend.is_confirmed,
-                "id_friend": friendship.id  
+                "id_friend": friendship.id,
                 }
             
             friends_with_ids.append(friend_data)
