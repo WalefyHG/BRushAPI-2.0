@@ -32,7 +32,12 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+CLOUDINARY_STORAGE = {
+    'CLOUDINARY_URL': os.getenv('CLOUDINARY_URL')
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 if DEBUG:
     mime = mimetypes.MimeTypes()
@@ -54,6 +59,8 @@ INSTALLED_APPS = [
     'ninja_jwt',
     'corsheaders',
     'channels',
+    'cloudinary_storage',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
