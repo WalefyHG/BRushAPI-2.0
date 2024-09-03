@@ -51,7 +51,7 @@ class Notices(models.Model):
     notice_title = models.CharField(max_length=100)
     notice_content = models.TextField()
     notice_date = models.DateTimeField(auto_now_add=True)
-    notice_image = models.ImageField(upload_to='newsImage/', null=True, blank=True)
+    notice_image = models.ImageField(upload_to='newsImage/', null=True, blank=True, max_length=255)
     notice_writer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notice_writer')
     
 class UserCode(models.Model):
