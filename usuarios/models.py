@@ -10,9 +10,9 @@ class User(AbstractUser, PermissionsMixin):
     )
     
     
-    user_name = models.CharField(max_length=20, unique=True)
-    user_email = models.CharField(max_length=50, unique=True)
-    user_image = models.ImageField(upload_to='image/', null=True, blank=True, default='')
+    user_name = models.CharField(max_length=100, unique=True)
+    user_email = models.CharField(max_length=100, unique=True)
+    user_image = models.ImageField(upload_to='image/', null=True, blank=True, default='', max_length=255)
     user_birthday = models.DateField(null=True, blank=True)
     user_firstName = models.CharField(max_length=50)
     user_lastName = models.CharField(max_length=50)
@@ -20,7 +20,7 @@ class User(AbstractUser, PermissionsMixin):
     user_idioma = models.CharField(max_length=20)
     user_games = models.CharField(max_length=50)
     user_pais = models.CharField(max_length=20)
-    user_banner = models.ImageField(upload_to='banner/', null=True, blank=True, default='')
+    user_banner = models.ImageField(upload_to='banner/', null=True, blank=True, default='', max_length=255)
     user_youtube = models.CharField(max_length=100, null=True, blank=True, default='')
     user_twitch = models.CharField(max_length=100, null=True, blank=True, default='')
     user_instagram = models.CharField(max_length=100, null=True, blank=True, default='')

@@ -25,7 +25,7 @@ class LoginController(TokenObtainPairController):
                     refresh_token = RefreshToken.for_user(user)
                     return schemas.LoginResponse(access=str(access_token), refresh=str(refresh_token), mensagem="Logado com sucesso")
             else:
-                return {"mensagem": "Senha incorreta"}
+                return schemas.UserResponse(mensagem="Senha incorreta")
             
         except models.User.DoesNotExist:
-            return {"mensagem": "Usuário não encontrado"}
+            return schemas.UserResponse(mensagem="Usuário não encontrado")
