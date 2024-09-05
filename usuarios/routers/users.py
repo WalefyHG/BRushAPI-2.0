@@ -265,3 +265,33 @@ class UserPublicContoller:
         user = User.objects.get(id=user_id)
         count = ChatMessage.objects.filter(user=user, read=False).count()
         return {"count": count}
+    
+    @route.get('/getAllPublic', response={200: list[UserOut]}, auth=None)
+    def get_all_users(self, request):
+        users = User.objects.all()
+        serialized_users = []
+        for user in users:
+            user_out = UserOut(
+            id=user.id,
+            user_name=user.user_name,
+            user_email=user.user_email,
+            user_birthday=user.user_birthday,
+            user_firstName=user.user_firstName,
+            user_lastName=user.user_lastName,
+            user_idioma=user.user_idioma,
+            user_games=user.user_games,
+            user_pais=user.user_pais,
+            user_youtube=user.user_youtube,
+            user_twitch=user.user_twitch,
+            user_instagram=user.user_instagram,
+            user_twitter=user.user_twitter,
+            is_confirmed=user.is_confirmed,
+            tipo=user.tipo,
+            )
+            
+            if user.user_image:
+                user_out.user_image = user.user_image.url
+            if user.user_banner:
+                user_out.user_banner = user.user_banner.url
+            serialized_users.append(user_out)
+        return serialized_users
