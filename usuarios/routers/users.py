@@ -92,6 +92,7 @@ class UserPublicContoller:
     @route.get('/perfil/{user_name}', response={200: UserOutFriendShip})
     def get_user_perfil_by_username(self, request, user_name: str):
         user = User.objects.get(user_name=user_name)
+        user_friendShip_Status = FriendShip.objects.filter(user=request.auth, friend=user).first()
         user_out = UserOutFriendShip(
             id=user.id,
             user_name=user.user_name,
@@ -110,7 +111,7 @@ class UserPublicContoller:
             tipo=user.tipo,
             friend_ship_request=False,
             are_friends=False,
-            friendship_status='none'
+            friendship_status=user_friendShip_Status.friendship_status
         )
         current_user = request.auth
         friend_ship_request = FriendShip.objects.filter(user=current_user, friend=user, friendship_status='pending' ).exists()
