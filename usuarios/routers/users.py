@@ -110,6 +110,7 @@ class UserPublicContoller:
             tipo=user.tipo,
             friend_ship_request=False,
             are_friends=False,
+            friendship_status='none'
         )
         current_user = request.auth
         friend_ship_request = FriendShip.objects.filter(user=current_user, friend=user, friendship_status='pending' ).exists()
