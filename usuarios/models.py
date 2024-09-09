@@ -48,7 +48,7 @@ class FriendShip(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
     friend = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friend')
     created = models.DateTimeField(auto_now_add=True)
-    friendship_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    friendship_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', black=True, null=True)
     class Meta:
         unique_together = ['user', 'friend']
 
