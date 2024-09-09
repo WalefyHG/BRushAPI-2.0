@@ -40,6 +40,7 @@ class UserPublicContoller:
             user_twitter=user.user_twitter,
             is_confirmed=user.is_confirmed,
             tipo=user.tipo,
+            
             )
             
             if user.user_image:
@@ -108,13 +109,13 @@ class UserPublicContoller:
             is_confirmed=user.is_confirmed,
             tipo=user.tipo,
             friend_ship_request=False,
-            are_friends=False
+            are_friends=False,
         )
         current_user = request.auth
-        friend_ship_request = FriendShip.objects.filter(user=current_user, friend=user, accepted=False).exists()
+        friend_ship_request = FriendShip.objects.filter(user=current_user, friend=user, friendship_status='pending' ).exists()
         
-        are_friends = FriendShip.objects.filter(user=current_user, friend=user, accepted=True).exists() or \
-                      FriendShip.objects.filter(user=user, friend=current_user, accepted=True).exists()
+        are_friends = FriendShip.objects.filter(user=current_user, friend=user, friendship_status= 'accepted').exists() or \
+                      FriendShip.objects.filter(user=user, friend=current_user, friendship_status= 'accepted').exists()
         
         if user.user_image:
             user_out.user_image = user.user_image.url
