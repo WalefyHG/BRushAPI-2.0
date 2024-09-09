@@ -127,10 +127,8 @@ class FriendshipController:
 
     @route.delete("/delete_friendship/{friendship_id}", response={200: UserResponse})
     def delete_account_friend(self, request, friendship_id: int):
-        friendship = get_object_or_404(FriendShip, id=friendship_id)
+        user = request.auth
+        friendships = FriendShip.objects.filter(Q(user=user) | Q(friend=user) | Q(friendship_status='accepted'))
+        friendships.delete()
         
-        if friendship.user != request.auth and friendship.friend != request.auth:
-            raise HttpError(403, "Você não tem permissão para deletar esta amizade.")
-        
-        friendship.delete()
-        return {"mensagem": "Amizade deletada com sucesso."}
+        return {"mensagem": "Amizades deletadas com sucesso."}
