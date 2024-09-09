@@ -24,8 +24,6 @@ class FriendshipController:
         if user == friend:
             raise HttpError(401, "Você não pode enviar solicitação de amizade para si mesmo.")
         
-        
-        
         friendship = FriendShip.objects.create(user=user, friend=friend)
         
         return {"mensagem": "Solicitação de amizade enviada com sucesso."}
@@ -33,11 +31,13 @@ class FriendshipController:
     @route.post("/accept_request/{friendship_id}", response={200: UserResponse})
     def accept_request(self, request, friendship_id: int):
         friendship = get_object_or_404(FriendShip, id=friendship_id)
+        
         if friendship.friend != request.auth:
             raise HttpError(403, "Você não tem permissão para aceitar esta solicitação.")
         
-        friendship.accepted = True
+        friendship.friendship_status = 'accepted'
         friendship.save()
+        
         return {"mensagem": "Solicitação de amizade aceita."}
 
     @route.post("/reject_request/{friendship_id}", response={200: UserResponse})
@@ -47,13 +47,18 @@ class FriendshipController:
         if friendship.friend != request.auth:
             raise HttpError(403, "Você não tem permissão para rejeitar esta solicitação.")
         
-        friendship.delete()
+        friendship.friendship_status = 'rejected'
+        friendship.save()
+        
         return {"mensagem": "Solicitação de amizade rejeitada."}
 
     @route.get("/accepted_friends", response={200: list[UserOutFriend]})
     def listando(self, request):
         user = request.auth
-        friendships = FriendShip.objects.filter((Q(user=user) | Q(friend=user)) & Q(accepted=True))
+        friendships = FriendShip.objects.filter(
+            (Q(user=user) | Q(friend=user)) & Q(friendship_status='accepted')
+        )
+        
         friends_with_ids = []
         for friendship in friendships:
             friend = friendship.friend if friendship.user == user else friendship.user
@@ -77,19 +82,20 @@ class FriendshipController:
                 "tipo": friend.tipo,
                 "is_confirmed": friend.is_confirmed,
                 "id_friend": friendship.id,
-                }
+            }
             
             friends_with_ids.append(friend_data)
             
-    
         return friends_with_ids
 
     @route.get("/pending_requests", response={200: list[UserOutFriend]})
     def pending_requests(self, request):
         user = request.auth
-        friendships = FriendShip.objects.filter((Q(user=user) | Q(friend=user)) & Q(accepted=False))
-        friends_with_ids = []
+        friendships = FriendShip.objects.filter(
+            (Q(user=user) | Q(friend=user)) & Q(friendship_status='pending')
+        )
         
+        friends_with_ids = []
         for friendship in friendships:
             friend = friendship.friend if friendship.user == user else friendship.user
             
@@ -112,17 +118,19 @@ class FriendshipController:
                 "tipo": friend.tipo,
                 "is_confirmed": friend.is_confirmed,
                 "id_friend": friendship.id,
-                "is_sender": friendship.user == user
-                }
+                "is_sender": friendship.user == user,
+            }
             
             friends_with_ids.append(friend_data)
             
         return friends_with_ids
-    
-    
-    @route.delete("/delete_friendship", response={200: UserResponse})
-    def delete_account_friend(self, request):
-        user = request.auth
-        friendships = FriendShip.objects.filter(Q(user=user) | Q(friend=user))
-        friendships.delete()
-        return {"mensagem": "Amizades deletadas com sucesso."}
+
+    @route.delete("/delete_friendship/{friendship_id}", response={200: UserResponse})
+    def delete_account_friend(self, request, friendship_id: int):
+        friendship = get_object_or_404(FriendShip, id=friendship_id)
+        
+        if friendship.user != request.auth and friendship.friend != request.auth:
+            raise HttpError(403, "Você não tem permissão para deletar esta amizade.")
+        
+        friendship.delete()
+        return {"mensagem": "Amizade deletada com sucesso."}

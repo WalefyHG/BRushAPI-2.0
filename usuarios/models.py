@@ -38,10 +38,17 @@ User._meta.get_field('groups').remote_field.related_name = 'usuarios_groups'
 User._meta.get_field('user_permissions').remote_field.related_name = 'usuarios_user_permissions'
 
 class FriendShip(models.Model):
+    
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected')
+    )
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
     friend = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friend')
     created = models.DateTimeField(auto_now_add=True)
-    accepted = models.BooleanField(default=False)
+    friendship_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     class Meta:
         unique_together = ['user', 'friend']
 
