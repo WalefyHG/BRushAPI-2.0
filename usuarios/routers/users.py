@@ -11,6 +11,7 @@ from ninja_jwt.authentication import JWTAuth
 from django.contrib.auth.hashers import make_password, check_password
 from ninja_extra.exceptions import HttpError
 from django.utils import timezone as django_timezone
+from django.db.models import Q
 
 @api_controller(
     "users/",
@@ -92,10 +93,11 @@ class UserPublicContoller:
     @route.get('/perfil/{user_name}', response={200: UserOutFriendShip})
     def get_user_perfil_by_username(self, request, user_name: str):
         user = User.objects.get(user_name=user_name)
-        user_friendShip_Status = FriendShip.objects.filter(user=request.auth, friend=user).first()
-        # Quero que meu friendship_status receba none caso não exista um relacionamento entre os dois usuários
+        current_user = request.auth
         
-        if user_friendShip_Status:
+        friendship = FriendShip.objects.filter((Q(user=current_user) & Q(friend=user)) | (Q(user=user) & Q(friend=current_user))).first()
+        
+        if friendship:
             user_friendShip_Status = user_friendShip_Status.friendship_status
         else:
             user_friendShip_Status = None
@@ -120,7 +122,7 @@ class UserPublicContoller:
             are_friends=False,
             friendship_status= user_friendShip_Status
         )
-        current_user = request.auth
+        
         friend_ship_request = FriendShip.objects.filter(user=current_user, friend=user, friendship_status='pending' ).exists()
         
         are_friends = FriendShip.objects.filter(user=current_user, friend=user, friendship_status= 'accepted').exists() or \
