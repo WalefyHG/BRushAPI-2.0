@@ -94,6 +94,12 @@ class UserPublicContoller:
         user = User.objects.get(user_name=user_name)
         user_friendShip_Status = FriendShip.objects.filter(user=request.auth, friend=user).first()
         # Quero que meu friendship_status receba none caso não exista um relacionamento entre os dois usuários
+        
+        if user_friendShip_Status:
+            user_friendShip_Status = user_friendShip_Status.friendship_status
+        else:
+            user_friendShip_Status = None
+            
         user_out = UserOutFriendShip(
             id=user.id,
             user_name=user.user_name,
@@ -112,7 +118,7 @@ class UserPublicContoller:
             tipo=user.tipo,
             friend_ship_request=False,
             are_friends=False,
-            friendship_status= user_friendShip_Status.friendship_status if user_friendShip_Status else None
+            friendship_status= user_friendShip_Status
         )
         current_user = request.auth
         friend_ship_request = FriendShip.objects.filter(user=current_user, friend=user, friendship_status='pending' ).exists()

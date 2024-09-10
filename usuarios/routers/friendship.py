@@ -26,6 +26,9 @@ class FriendshipController:
         
         friendship = FriendShip.objects.create(user=user, friend=friend)
         
+        friendship.friendship_status = 'pending'
+        friendship.save()
+        
         return {"mensagem": "Solicitação de amizade enviada com sucesso."}
 
     @route.post("/accept_request/{friendship_id}", response={200: UserResponse})
@@ -48,7 +51,10 @@ class FriendshipController:
             raise HttpError(403, "Você não tem permissão para rejeitar esta solicitação.")
         
         friendship.friendship_status = 'rejected'
-        friendship.save()
+        if friendship.friendship_status == 'rejected':
+            friendship.delete()
+        else:
+            raise HttpError(400, "Erro ao rejeitar solicitação de amizade.")
         
         return {"mensagem": "Solicitação de amizade rejeitada."}
 
