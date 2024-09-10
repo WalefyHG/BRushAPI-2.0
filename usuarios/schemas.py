@@ -59,7 +59,7 @@ class UserOutFriendShip(Schema):
     tipo: str = None
     friend_ship_request: bool = None
     are_friends: bool = None
-    friendship_status: str = None
+    friendship_status: Optional[str] = None
     
     
 class UserOutFriend(Schema):
