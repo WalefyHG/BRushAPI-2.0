@@ -98,7 +98,7 @@ class UserPublicContoller:
         friendship = FriendShip.objects.filter((Q(user=current_user) & Q(friend=user)) | (Q(user=user) & Q(friend=current_user))).first()
         
         if friendship:
-            user_friendShip_Status = user_friendShip_Status.friendship_status
+            user_friendShip_Status = friendship.friendship_status
         else:
             user_friendShip_Status = None
             
