@@ -1,6 +1,9 @@
-from typing import List, Optional
-from datetime import date
+from typing import Any, List, Optional
+from datetime import date, datetime
 from ninja import Schema
+from pydantic import BaseModel, ConfigDict, validator
+import pydantic.dataclasses
+
 
 class UserIn(Schema):
     user_name: str
@@ -13,6 +16,7 @@ class UserIn(Schema):
     user_games: str = None
     user_pais: str = None
     user_image: Optional[str] = None
+    is_confirmed: bool = None
     tipo: str = None
     
 class UserOut(Schema):
@@ -33,6 +37,51 @@ class UserOut(Schema):
     user_twitter : str = None
     is_confirmed: bool = None
     tipo: str = None
+    
+    
+class UserOutFriendShip(Schema):
+    id: int = None
+    user_name: str = None
+    user_email: str = None
+    user_birthday: date = None
+    user_firstName: str = None
+    user_lastName: str = None
+    user_image: Optional[str] = None
+    user_idioma: str = None
+    user_games: str = None
+    user_pais: str = None
+    user_banner: Optional[str] = None
+    user_youtube : str = None
+    user_twitch : str = None
+    user_instagram : str = None
+    user_twitter : str = None
+    is_confirmed: bool = None
+    tipo: str = None
+    friend_ship_request: bool = None
+    are_friends: bool = None
+    friendship_status: Optional[str] = None
+    
+    
+class UserOutFriend(Schema):
+    id: int = None
+    user_name: str = None
+    user_email: str = None
+    user_birthday: date = None
+    user_firstName: str = None
+    user_lastName: str = None
+    user_image: Optional[str] = None
+    user_idioma: str = None
+    user_games: str = None
+    user_pais: str = None
+    user_banner: Optional[str] = None
+    user_youtube : str = None
+    user_twitch : str = None
+    user_instagram : str = None
+    user_twitter : str = None
+    is_confirmed: bool = None
+    tipo: str = None
+    id_friend: int = None
+    is_sender: bool = None
 
 class UserResponse(Schema):
     mensagem: str
@@ -55,6 +104,15 @@ class UserPut(Schema):
     user_idioma: Optional[str] = ''
     user_games: Optional[str] = ''
     user_pais: Optional[str] = ''
+    user_firstName: Optional[str] = ''
+    user_lastName: Optional[str] = ''
+    user_instagram: Optional[str] = ''
+    user_twitter: Optional[str] = ''
+    user_youtube: Optional[str] = ''
+    user_twitch: Optional[str] = ''
+    tipo: Optional[str] = ''
+    is_confirmed: Optional[bool] = ''   
+     
 
 
 class UserChangePassword(Schema):
@@ -81,13 +139,13 @@ class TeamAssing(Schema):
 class NoticeIn(Schema):
     notice_title: str
     notice_content: str
-    notice_date: date = None
+    notice_date: datetime = None
 
 class NoticeOut(Schema):
     notice_id: int
     notice_title: str
     notice_content: str
-    notice_date: date = None
+    notice_date: datetime = None
     notice_image: Optional[str] = None
     notice_writer: UserOut = None
     
@@ -96,4 +154,25 @@ class LoginResponse(Schema):
     mensagem: str
     access: Optional[str] = None
     refresh: Optional[str] = None
-    code: Optional[str] = None
+    
+    
+class ChatMessageIn(Schema):
+    recipient_id: int
+    content: str
+
+class ChatMessageResponse(Schema):
+    id: int
+    content: str
+    sender: UserOut
+    room: str
+    timestamp: datetime
+    
+class ChatRoomOut(Schema):
+    id: int
+    users: List[int]
+    messages: List[ChatMessageResponse]
+    
+    
+class ReadCount(Schema):
+    count: int
+    
