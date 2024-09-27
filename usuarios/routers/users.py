@@ -89,6 +89,8 @@ class UserPublicContoller:
         if user.is_confirmed == False:
             sending_code(user_data)
             return {"mensagem": "Usuário criado com sucesso, verifique seu email para confirmar o cadastro"}
+        else:
+            return {"mensagem": "Usuário criado com sucesso"}
     
     @route.get('/perfil/{user_name}', response={200: UserOutFriendShip})
     def get_user_perfil_by_username(self, request, user_name: str):
@@ -138,62 +140,71 @@ class UserPublicContoller:
         user_out.are_friends = are_friends
         return user_out
     
-    @route.get('/usuario/{id}', response={200: UserOut})
+    @route.get('/usuario/{id}', response={200: UserOut, 404: UserResponse})
     def get_user_by_id(self, request, id: int):
-        user = User.objects.get(id=id)
-        user_out = UserOut(
-            id=user.id,
-            user_name=user.user_name,
-            user_email=user.user_email,
-            user_birthday=user.user_birthday,
-            user_firstName=user.user_firstName,
-            user_lastName=user.user_lastName,
-            user_idioma=user.user_idioma,
-            user_games=user.user_games,
-            user_pais=user.user_pais,
-            user_youtube=user.user_youtube,
-            user_twitch=user.user_twitch,
-            user_instagram=user.user_instagram,
-            user_twitter=user.user_twitter,
-            is_confirmed=user.is_confirmed,
-            tipo=user.tipo,
-        )
-        
-        if user.user_image:
-            user_out.user_image = user.user_image.url
-        if user.user_banner:
-            user_out.user_banner = user.user_banner.url
-        return user_out
-
-    @route.get('/pesquisar/{user_firstName}', response={200: list[UserOut]}, auth=None)
-    def get_user_by_userfirstname(self, request, user_firstName: str):
-        users = User.objects.filter(user_firstName__icontains=user_firstName)
-        serialized_users = []
-        for user in users:
+        try:
+            user = User.objects.get(id=id)
             user_out = UserOut(
-            id=user.id,
-            user_name=user.user_name,
-            user_email=user.user_email,
-            user_birthday=user.user_birthday,
-            user_firstName=user.user_firstName,
-            user_lastName=user.user_lastName,
-            user_idioma=user.user_idioma,
-            user_games=user.user_games,
-            user_pais=user.user_pais,
-            user_youtube=user.user_youtube,
-            user_twitch=user.user_twitch,
-            user_instagram=user.user_instagram,
-            user_twitter=user.user_twitter,
-            is_confirmed=user.is_confirmed,
-            tipo=user.tipo,
+                id=user.id,
+                user_name=user.user_name,
+                user_email=user.user_email,
+                user_birthday=user.user_birthday,
+                user_firstName=user.user_firstName,
+                user_lastName=user.user_lastName,
+                user_idioma=user.user_idioma,
+                user_games=user.user_games,
+                user_pais=user.user_pais,
+                user_youtube=user.user_youtube,
+                user_twitch=user.user_twitch,
+                user_instagram=user.user_instagram,
+                user_twitter=user.user_twitter,
+                is_confirmed=user.is_confirmed,
+                tipo=user.tipo,
             )
-            
+        
             if user.user_image:
                 user_out.user_image = user.user_image.url
             if user.user_banner:
                 user_out.user_banner = user.user_banner.url
-        serialized_users.append(user_out)
-        return serialized_users
+            return user_out
+        except User.DoesNotExist:
+            return {"mensagem": "Usuário não encontrado"}, 404
+
+    @route.get('/pesquisar/{user_firstName}', response={200: list[UserOut], 400: UserResponse, 401: UserResponse}, auth=None)
+    def get_user_by_userfirstname(self, request, user_firstName: str):
+        try:
+            users = User.objects.filter(user_firstName__icontains=user_firstName)
+            serialized_users = []
+            for user in users:
+                user_out = UserOut(
+                id=user.id,
+                user_name=user.user_name,
+                user_email=user.user_email,
+                user_birthday=user.user_birthday,
+                user_firstName=user.user_firstName,
+                user_lastName=user.user_lastName,
+                user_idioma=user.user_idioma,
+                user_games=user.user_games,
+                user_pais=user.user_pais,
+                user_youtube=user.user_youtube,
+                user_twitch=user.user_twitch,
+                user_instagram=user.user_instagram,
+                user_twitter=user.user_twitter,
+                is_confirmed=user.is_confirmed,
+                tipo=user.tipo,
+                )
+            
+                if user.user_image:
+                    user_out.user_image = user.user_image.url
+                if user.user_banner:
+                    user_out.user_banner = user.user_banner.url
+                serialized_users.append(user_out)
+                return serialized_users
+        
+            if not users:
+                return {"mensagem": "Usuário não encontrado"}, 400
+        except User.DoesNotExist:
+            return {"mensagem": "Usuário não encontrado"}, 401
     
     @route.put('/atualizar/{id}', response={200: UserResponse}, auth=None)
     def update_user(self, request, id: int, user: UserPut, image: UploadedFile = File(None), banner: UploadedFile = File(None)):
@@ -240,7 +251,7 @@ class UserPublicContoller:
             return {'mensagem': 'Código inválido'}
         
         
-    @route.put('/atualizar_senha', response={200: UserResponse}, auth=None)
+    @route.put('/atualizar_senha', response={200: UserResponse})
     def update_password(self, request, change_password: UserChangePassword):
         user = request.auth
         if change_password.senha_nova == change_password.confirmar_senha:
@@ -258,7 +269,8 @@ class UserPublicContoller:
     @route.post('/enviar_codigo', response={200: UserResponse})
     def send_code(self, request):
         user = request.auth
-        return sending_code(user)
+        sending_code(user)
+        return {"mensagem": "Código enviado com sucesso"}
     
     
     @route.put('/atualizar_redes_sociais', response={200: UserResponse})
