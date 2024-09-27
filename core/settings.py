@@ -126,9 +126,14 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default= os.getenv('DATABASE_URL')
-    )
+     'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'brush',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    }
 }
 
 

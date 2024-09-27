@@ -13,25 +13,30 @@ from utils.sending_password import sending_password_reset_code
     "login/",
     auth=None,
     permissions=[],
-    tags=['Login - Publico']
+    tags=['Login - Público']
 )
-
 class LoginController(TokenObtainPairController):
     @route.post('/login', auth=None, response=schemas.LoginResponse)
     def obtain_token(self, user_input: TokenObtainPairInputSchema):
         try:
             user = models.User.objects.get(user_email=user_input.user_email)
-            
+
             if check_password(user_input.password, user.password):
                 if user.is_confirmed:
                     access_token = AccessToken.for_user(user)
                     refresh_token = RefreshToken.for_user(user)
-                    return schemas.LoginResponse(access=str(access_token), refresh=str(refresh_token), mensagem="Logado com sucesso")
+                    return schemas.LoginResponse(
+                        access=str(access_token), 
+                        refresh=str(refresh_token), 
+                        mensagem="Logado com sucesso"
+                    )
+                else:
+                    return schemas.UserResponse(mensagem="Usuário não confirmado"), 403
             else:
-                return schemas.UserResponse(mensagem="Senha incorreta")
+                return schemas.UserResponse(mensagem="Senha incorreta"), 401
             
         except models.User.DoesNotExist:
-            return schemas.UserResponse(mensagem="Usuário não encontrado")
+            return schemas.UserResponse(mensagem="Usuário não encontrado"), 404
         
     @route.post('/password-reset-request', auth=None)
     def password_reset_request(self, user_email: str):
