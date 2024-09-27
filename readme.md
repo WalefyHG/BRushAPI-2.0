@@ -9,6 +9,7 @@
     - Com o servidor do mysql aberto, execute o comando: python manage.py makemigrations
     - Com o servidor do mysql aberto, execute o comando: python manage.py migrate
     - Para iniciar o servidor execute: python manage.py runserver
+    - Para realizar os teste execute: pytest usuarios/tests.py
 
 
 >>> Iniciando o docs
